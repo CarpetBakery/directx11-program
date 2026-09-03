@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+#include "d3dclass.h"
 
 // -- Globals --
 constexpr bool FULL_SCREEN = false;
@@ -18,5 +18,7 @@ public:
     void shutdown();
     bool frame();
 private:
+    D3DClass *m_direct3d = nullptr;
+
     bool render();
 };
