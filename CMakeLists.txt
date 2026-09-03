@@ -32,6 +32,6 @@ endif()
 
 # Link libraries
 set(LIBS "")
-set(LIBS ${LIBS} d3d11.lib dxguid.lib D3Dcompiler.lib)
+set(LIBS ${LIBS} d3d11.lib dxgi.lib dxguid.lib D3Dcompiler.lib)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
