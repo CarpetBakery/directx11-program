@@ -27,7 +27,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Don't include console in release builds
 	add_executable(${PROJECT_NAME} WIN32 ${SOURCE_CXX_FILES})
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_executable(${PROJECT_NAME} ${SOURCE_CXX_FILES})
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCE_CXX_FILES})
 endif()
 
 # Link libraries
