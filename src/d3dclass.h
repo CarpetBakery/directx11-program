@@ -14,22 +14,22 @@ public:
     ~D3DClass() = default;
 
     bool initialize(int, int, bool, HWND, bool, float, float);
-    void shutdown() {};
+    void shutdown();
 
-    void begin_scene(float, float, float, float) {};
-    void end_scene() {};
+    void begin_scene(float, float, float, float);
+    void end_scene();
 
-    ID3D11Device *get_device() {};
-    ID3D11DeviceContext *get_device_context() {};
+    ID3D11Device *get_device();
+    ID3D11DeviceContext *get_device_context();
 
-    void get_projection_matrix(DirectX::XMMATRIX &) {};
-    void get_world_matrix(DirectX::XMMATRIX &) {};
-    void get_ortho_matrix(DirectX::XMMATRIX &) {};
+    void get_projection_matrix(DirectX::XMMATRIX &);
+    void get_world_matrix(DirectX::XMMATRIX &);
+    void get_ortho_matrix(DirectX::XMMATRIX &);
 
-    void get_video_card_info(char *, int &) {};
+    void get_video_card_info(char *, int &);
 
-    void set_back_buffer_render_target() {};
-    void reset_viewport() {};
+    void set_back_buffer_render_target();
+    void reset_viewport();
 
 private:
     bool m_vsync_enabled;

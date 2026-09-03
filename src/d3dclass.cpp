@@ -107,7 +107,7 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     {
         return false;
     }
-    
+
     // Release stuff related to getting info
     delete[] display_mode_list;
     display_mode_list = nullptr;
@@ -124,4 +124,50 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     // TODO: Initialize other stuff
 
     return true;
+}
+
+void D3DClass::shutdown()
+{
+}
+
+void D3DClass::begin_scene(float, float, float, float)
+{
+}
+
+void D3DClass::end_scene()
+{
+}
+
+ID3D11Device *D3DClass::get_device()
+{
+    return nullptr;
+}
+
+ID3D11DeviceContext *D3DClass::get_device_context()
+{
+    return nullptr;
+}
+
+void D3DClass::get_projection_matrix(DirectX::XMMATRIX &)
+{
+}
+
+void D3DClass::get_world_matrix(DirectX::XMMATRIX &)
+{
+}
+
+void D3DClass::get_ortho_matrix(DirectX::XMMATRIX &)
+{
+}
+
+void D3DClass::get_video_card_info(char *, int &)
+{
+}
+
+void D3DClass::set_back_buffer_render_target()
+{
+}
+
+void D3DClass::reset_viewport()
+{
 }
