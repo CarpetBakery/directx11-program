@@ -5,14 +5,21 @@
 #include "inputclass.h"
 #include "applicationclass.h"
 
+struct SystemClassDesc
+{
+    bool show_cursor = false;
+};
+
 class SystemClass
 {
 public:
+    SystemClassDesc m_system_desc{};
+
     SystemClass();
     SystemClass(const SystemClass&) = default;
     ~SystemClass() = default;
 
-    bool initialize();
+    bool initialize(const SystemClassDesc &system_desc);
     void shutdown();
     void run();
 

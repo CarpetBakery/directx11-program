@@ -13,11 +13,13 @@ SystemClass::SystemClass()
     m_application = nullptr;
 }
 
-bool SystemClass::initialize()
+bool SystemClass::initialize(const SystemClassDesc &system_desc)
 {
     int screen_width = 0;
     int screen_height = 0;
     bool result;
+
+    m_system_desc = system_desc;
 
     initialize_windows(screen_width, screen_height);
 
@@ -201,7 +203,7 @@ void SystemClass::initialize_windows(int &screen_width, int &screen_height)
     SetFocus(m_hwnd);
 
     // Hide mouse cursor
-    ShowCursor(false);
+    ShowCursor(m_system_desc.show_cursor);
 }
 
 void SystemClass::shutdown_windows()
