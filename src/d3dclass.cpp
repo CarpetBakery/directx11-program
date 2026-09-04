@@ -29,7 +29,7 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     D3D_FEATURE_LEVEL feature_level;
     ID3D11Texture2D *back_buffer_ptr;
     D3D11_TEXTURE2D_DESC depth_buffer_desc;
-    D3D11_DEPTH_STENCIL_DESC depth_stencil_sesc;
+    D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
     D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
     D3D11_RASTERIZER_DESC raster_desc;
     float fov, screen_aspect;
@@ -37,6 +37,7 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     // Store the vsync setting
     m_vsync_enabled = vsync;
 
+    // -- Get device info --
     // Create a DirectX graphics interface factory
     result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void **)&factory);
     if (FAILED(result))
@@ -121,7 +122,134 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     factory->Release();
     factory = nullptr;
 
-    // TODO: Initialize other stuff
+    // -- Initialize DirectX --
+    // Initialize swapchain
+    ZeroMemory(&swap_chain_desc, sizeof(swap_chain_desc));
+
+    // Set to a single back buffer
+    swap_chain_desc.BufferCount = 1;
+
+    // Set width and height of backbuffer
+    swap_chain_desc.BufferDesc.Width = screen_width;
+    swap_chain_desc.BufferDesc.Height = screen_height;
+
+    // Use 32-bit surface for backbuffer
+    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    // Set refresh rate
+    if (m_vsync_enabled)
+    {
+        swap_chain_desc.BufferDesc.RefreshRate.Numerator = numerator;
+        swap_chain_desc.BufferDesc.RefreshRate.Denominator = denominator;
+    }
+    else
+    {
+        // Draw as fast as possible :(
+        swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
+        swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
+    }
+
+    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swap_chain_desc.OutputWindow = hwnd;
+
+    // Turn off multisampling
+    swap_chain_desc.SampleDesc.Count = 1;
+    swap_chain_desc.SampleDesc.Quality = 0;
+
+    // Set to fullscreen or windowed mode
+    swap_chain_desc.Windowed = !fullscreen;
+
+    // Set scan line ordering and scaling to unspecified
+    swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+    swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+    // Discard back buffer contents after presenting
+    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+    // Don't set the advanced flags
+    swap_chain_desc.Flags = 0;
+
+    // Use DirectX 11
+    feature_level = D3D_FEATURE_LEVEL_11_0;
+
+    // Create the swap chain, Direct3D device, and Direct3D device context
+    result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &feature_level, 1,
+                                           D3D11_SDK_VERSION, &swap_chain_desc, &m_swap_chain, &m_device, NULL, &m_device_context);
+    if (FAILED(result))
+    {
+        // User might not have a card that supports DX11
+        return false;
+    }
+
+    // Get pointer to back buffer
+    result = m_swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&back_buffer_ptr);
+    if (FAILED(result))
+    {
+        return true;
+    }
+
+    // Create the render target view with the back buffer pointer
+    result = m_device->CreateRenderTargetView(back_buffer_ptr, NULL, &m_render_target_view);
+    if (FAILED(result))
+    {
+        return true;
+    }
+
+    // Don't need back buffer pointer anymore
+    back_buffer_ptr->Release();
+    back_buffer_ptr = nullptr;
+
+    // Initialize the description of the depth buffer
+    ZeroMemory(&depth_buffer_desc, sizeof(depth_buffer_desc));
+
+    // Set up the description of the depth buffer
+    depth_buffer_desc.Width = screen_width;
+    depth_buffer_desc.Height = screen_height;
+    depth_buffer_desc.MipLevels = 1;
+    depth_buffer_desc.ArraySize = 1;
+    depth_buffer_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depth_buffer_desc.SampleDesc.Count = 1;
+    depth_buffer_desc.SampleDesc.Quality = 0;
+    depth_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    depth_buffer_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    depth_buffer_desc.CPUAccessFlags = 0;
+    depth_buffer_desc.MiscFlags = 0;
+
+    // Create texture for the depth buffer
+    result = m_device->CreateTexture2D(&depth_buffer_desc, NULL, &m_depth_stencil_buffer);
+    if (FAILED(result))
+    {
+        return true;
+    }
+
+    // Config depth stencil 
+    ZeroMemory(&depth_stencil_desc, sizeof(depth_stencil_desc));
+
+    depth_stencil_desc.DepthEnable = true;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
+
+    depth_stencil_desc.StencilEnable = true;
+    depth_stencil_desc.StencilReadMask = 0xFF;
+    depth_stencil_desc.StencilWriteMask = 0xFF;
+
+    // Stencil operations if pixel is front facing
+    depth_stencil_desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    depth_stencil_desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Stencil operations if pixel is back facing
+    depth_stencil_desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+    depth_stencil_desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    result = m_device->CreateDepthStencilState(&depth_stencil_desc, &m_depth_stencil_state);
+    if (FAILED(result))
+    {
+        return false;
+    }
 
     return true;
 }

@@ -12,23 +12,39 @@ get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
 project(${ProjectId})
 
+# Support compiling resource files
+ENABLE_LANGUAGE(RC)
+
 # C++ version
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Get all files in src folder
+
+# -- Add source --
 file(
 	GLOB_RECURSE SOURCE_CXX_FILES
 	"src/*.cpp"
+	"resource/*.rc"
 )
 
-# Add source
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Don't include console in release builds
 	add_executable(${PROJECT_NAME} WIN32 ${SOURCE_CXX_FILES})
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_executable(${PROJECT_NAME} WIN32 ${SOURCE_CXX_FILES})
 endif()
+
+# Platform
+set(IS_PLATFORM_WINDOWS 1)
+# if (CMAKE_SYSTEM_NAME MATCHES Windows)
+# 	set(IS_PLATFORM_WINDOWS 1)
+# endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    BUILD_PLATFORM_WINDOWS=${IS_PLATFORM_WINDOWS}
+	WIN32_LEAN_AND_MEAN
+)
+
 
 # Link libraries
 set(LIBS "")

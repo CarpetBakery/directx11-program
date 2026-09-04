@@ -1,4 +1,5 @@
 #include "systemclass.h"
+#include "debug.h"
 
 namespace
 {
@@ -30,11 +31,15 @@ bool SystemClass::initialize()
         return false;
     }
 
+    DebugConsole::init(m_hwnd, screen_width, screen_height);
+
     return true;
 }
 
 void SystemClass::shutdown()
 {
+    DebugConsole::free();
+    
     if (m_application)
     {
         m_application->shutdown();
