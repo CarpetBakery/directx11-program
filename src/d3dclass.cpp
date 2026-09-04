@@ -1,4 +1,5 @@
 #include "d3dclass.h"
+#include "math.h"
 
 using namespace DirectX;
 
@@ -251,11 +252,127 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
         return false;
     }
 
+    // Bind depth stencil state
+    m_device_context->OMSetDepthStencilState(m_depth_stencil_state, 1);
+
+    // Config depth stencil view
+    ZeroMemory(&depth_stencil_view_desc, sizeof(depth_stencil_view_desc));
+
+    depth_stencil_view_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depth_stencil_view_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    depth_stencil_view_desc.Texture2D.MipSlice = 0;
+
+    result = m_device->CreateDepthStencilView(m_depth_stencil_buffer, &depth_stencil_view_desc, &m_depth_stencil_view);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // Bind the render target view and depth stencil buffer to the output render pipeline
+    m_device_context->OMSetRenderTargets(1, &m_render_target_view, m_depth_stencil_view);
+
+    // Config raster description, which will determine how and what polygons will be drawn
+    raster_desc.AntialiasedLineEnable = false;
+    raster_desc.CullMode = D3D11_CULL_BACK;
+    raster_desc.DepthBias = 0;
+    raster_desc.DepthBiasClamp = 0.0f;
+    raster_desc.DepthClipEnable = true;
+    raster_desc.FillMode = D3D11_FILL_SOLID;
+    raster_desc.FrontCounterClockwise = false;
+    raster_desc.MultisampleEnable = false;
+    raster_desc.ScissorEnable = false;
+    raster_desc.SlopeScaledDepthBias = 0.0f;
+
+    result = m_device->CreateRasterizerState(&raster_desc, &m_raster_state);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // Now set the rasterizer state
+    m_device_context->RSSetState(m_raster_state);
+
+    // Setup viewport
+    m_viewport.Width = (float)screen_width;
+    m_viewport.Height = (float)screen_height;
+    m_viewport.MinDepth = 0.0f;
+    m_viewport.MaxDepth = 1.0f;
+    m_viewport.TopLeftX = 0.0f;
+    m_viewport.TopLeftY = 0.0f;
+
+    m_device_context->RSSetViewports(1, &m_viewport);
+
+    // Create projection matrix
+    fov = Math::pi / 4.0f;
+    screen_aspect = (float)screen_width / (float)screen_height;
+    m_projection_matrix = XMMatrixPerspectiveFovLH(fov, screen_aspect, screen_near, screen_depth);
+
+    // Create world matrix
+    m_world_matrix = XMMatrixIdentity();
+
+    // TODO: Create view matrix
+
+    // Create orthographic projection matrix for 2D rendering
+    m_ortho_matrix = XMMatrixOrthographicLH((float)screen_width, (float)screen_height, screen_near, screen_depth);
+
     return true;
 }
 
 void D3DClass::shutdown()
 {
+    // Go windowed mode to avoid an exception when we release swap chain
+    if (m_swap_chain)
+    {
+        m_swap_chain->SetFullscreenState(false, NULL);
+    }
+
+    if (m_raster_state)
+    {
+        m_raster_state->Release();
+        m_raster_state = nullptr;
+    }
+
+    if (m_depth_stencil_view)
+    {
+        m_depth_stencil_view->Release();
+        m_depth_stencil_view = nullptr;
+    }
+
+    if (m_depth_stencil_state)
+    {
+        m_depth_stencil_state->Release();
+        m_depth_stencil_state = nullptr;
+    }
+    
+    if (m_depth_stencil_buffer)
+    {
+        m_depth_stencil_buffer->Release();
+        m_depth_stencil_buffer = nullptr;
+    }
+
+    if (m_render_target_view)
+    {
+        m_render_target_view->Release();
+        m_render_target_view = nullptr;
+    }
+
+    if (m_device_context)
+    {
+        m_device_context->Release();
+        m_device_context = nullptr;
+    }
+
+    if (m_device)
+    {
+        m_device->Release();
+        m_device = nullptr;
+    }
+
+    if (m_swap_chain)
+    {
+        m_swap_chain->Release();
+        m_swap_chain = nullptr;
+    }
 }
 
 void D3DClass::begin_scene(float, float, float, float)
