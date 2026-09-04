@@ -16,7 +16,9 @@ public:
     bool initialize(int, int, bool, HWND, bool, float, float);
     void shutdown();
 
-    void begin_scene(float, float, float, float);
+    // Start drawing a scene
+    void begin_scene(float r, float g, float b, float a);
+    // Finish drawing and display our scene
     void end_scene();
 
     ID3D11Device *get_device();
@@ -33,7 +35,7 @@ public:
 
 private:
     bool m_vsync_enabled;
-    int m_video_cardm_memory;
+    int m_video_card_memory;
     char m_video_card_description[128];
     IDXGISwapChain *m_swap_chain;
     ID3D11Device *m_device;

@@ -101,7 +101,7 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
     }
 
     // Store the dedicated video memory in megabytes
-    m_video_cardm_memory = (int)(adapter_desc.DedicatedVideoMemory / 1024 / 1024);
+    m_video_card_memory = (int)(adapter_desc.DedicatedVideoMemory / 1024 / 1024);
 
     // Convert the name of the video card to a character array and store it
     error = wcstombs_s(&string_length, m_video_card_description, 128, adapter_desc.Description, 128);
@@ -375,44 +375,68 @@ void D3DClass::shutdown()
     }
 }
 
-void D3DClass::begin_scene(float, float, float, float)
+void D3DClass::begin_scene(float r, float g, float b, float a)
 {
+    float color[4] = { r, g, b, a };
+
+    m_device_context->ClearRenderTargetView(m_render_target_view, color);
+    m_device_context->ClearDepthStencilView(m_depth_stencil_view, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void D3DClass::end_scene()
 {
+    // Present back buffer to the screen since rendering is complete
+    if (m_vsync_enabled)
+    {
+        // Lock to screen refresh rate
+        m_swap_chain->Present(1, 0);
+    }
+    else
+    {
+        // Present as fast as possible
+        m_swap_chain->Present(0, 0);
+    }
 }
 
 ID3D11Device *D3DClass::get_device()
 {
-    return nullptr;
+    return m_device;
 }
 
 ID3D11DeviceContext *D3DClass::get_device_context()
 {
-    return nullptr;
+    return m_device_context;
 }
 
-void D3DClass::get_projection_matrix(DirectX::XMMATRIX &)
+// TODO: 
+void D3DClass::get_projection_matrix(DirectX::XMMATRIX &projection_matrix)
 {
+    projection_matrix = m_projection_matrix;
 }
 
-void D3DClass::get_world_matrix(DirectX::XMMATRIX &)
+void D3DClass::get_world_matrix(DirectX::XMMATRIX &world_matrix)
 {
+    world_matrix = m_world_matrix;
 }
 
-void D3DClass::get_ortho_matrix(DirectX::XMMATRIX &)
+void D3DClass::get_ortho_matrix(DirectX::XMMATRIX &ortho_matrix)
 {
+    ortho_matrix = m_ortho_matrix;
 }
 
-void D3DClass::get_video_card_info(char *, int &)
+void D3DClass::get_video_card_info(char *card_name, int &memory)
 {
+    strcpy_s(card_name, 128, m_video_card_description);
+	memory = m_video_card_memory;
 }
 
 void D3DClass::set_back_buffer_render_target()
 {
+    // Bind the render target view and depth stencil buffer to the output render pipeline
+    m_device_context->OMSetRenderTargets(1, &m_render_target_view, m_depth_stencil_view);
 }
 
 void D3DClass::reset_viewport()
 {
+    m_device_context->RSSetViewports(1, &m_viewport);
 }

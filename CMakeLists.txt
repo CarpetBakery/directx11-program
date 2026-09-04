@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(
 	GLOB_RECURSE SOURCE_CXX_FILES
 	"src/*.cpp"
-	"resource/*.rc"
+	# "resource/*.rc"
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
