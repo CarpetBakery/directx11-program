@@ -14,6 +14,7 @@ private:
 
     ID3D11VertexShader* m_vertex_shader;
 	ID3D11PixelShader* m_fragment_shader;
+    ID3D11SamplerState *m_point_sampler;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrix_buffer;
 

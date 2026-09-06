@@ -127,6 +127,20 @@ bool ColorShaderClass::initialize_shaders(ID3D11Device *device, HWND hwnd, WCHAR
         return false;
     }
 
+    // Create sampler (nearest neighbor scaling)
+    D3D11_SAMPLER_DESC sampler_desc{};
+    sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+    result = device->CreateSamplerState(&sampler_desc, &m_point_sampler);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
     // Create vertex input layout description
     // This setup needs to match the VertexType structure in the ModelClass and in the shader
     polygon_layout[0].SemanticName = "POSITION";
@@ -198,6 +212,12 @@ void ColorShaderClass::shutdown_shader()
         m_layout = nullptr;
     }
 
+    if (m_point_sampler)
+    {
+        m_point_sampler->Release();
+        m_point_sampler = nullptr;
+    }
+    
     if (m_fragment_shader)
     {
         m_fragment_shader->Release(); 
@@ -281,6 +301,7 @@ void ColorShaderClass::render_shader(ID3D11DeviceContext *device_context, int in
     // Set the vertex and pixel shaders that will be used to render this triangle
     device_context->VSSetShader(m_vertex_shader, NULL, 0);
     device_context->PSSetShader(m_fragment_shader, NULL, 0);
+    device_context->PSSetSamplers(0, 1, &m_point_sampler);
 
     // Render the triangle
     device_context->DrawIndexed(index_count, 0, 0);
