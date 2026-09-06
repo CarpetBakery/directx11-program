@@ -34,7 +34,7 @@ bool ColorShaderClass::initialize(ID3D11Device *device, HWND hwnd)
     }
 
     result = initialize_shaders(device, hwnd, vs_filename, fs_filename);
-    if (result)
+    if (!result)
     {
         return false;
     }
@@ -53,7 +53,7 @@ bool ColorShaderClass::render(ID3D11DeviceContext *device_context, int index_cou
 
     // Set shader parameters that it will use for rendering
     result = set_shader_parameters(device_context, mat_world, mat_view, mat_proj);
-    if (result)
+    if (!result)
     {
         return false;
     }
