@@ -1,12 +1,6 @@
 #include "systemclass.h"
 #include "debug.h"
 
-namespace
-{
-    constexpr int SCREEN_WIDTH = 800;
-    constexpr int SCREEN_HEIGHT = 600;
-}
-
 SystemClass::SystemClass()
 {
     m_input = nullptr;
@@ -181,8 +175,8 @@ void SystemClass::initialize_windows(int &screen_width, int &screen_height)
     else
     {
         // Windowed mode
-        screen_width = SCREEN_WIDTH;
-        screen_height = SCREEN_HEIGHT;
+        screen_width = m_system_desc.screen_width;
+        screen_height = m_system_desc.screen_height;
 
         // Place window in the middle of the screen
         posx = (GetSystemMetrics(SM_CXSCREEN) - screen_width) / 2;

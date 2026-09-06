@@ -49,8 +49,8 @@ bool ModelClass::initialize_buffers(ID3D11Device *device)
     HRESULT result;
 
     // TEMP: Fill with triangle data
-    m_vertex_count = 3;
-    m_index_count = 3;
+    m_vertex_count = 4;
+    m_index_count = 6;
 
     vertices = new VertexType[m_vertex_count];
     if (!vertices)
@@ -64,22 +64,40 @@ bool ModelClass::initialize_buffers(ID3D11Device *device)
     {
         return false;
     }
-
+    
     // Bottom left
-    vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f); 
-    vertices[0].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    // vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f); 
+    // vertices[0].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
-    // Top middle
-    vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f); 
-    vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    // // Top middle
+    // vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f); 
+    // vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-    // Bottom right
-    vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f); 
-    vertices[2].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    // // Bottom right
+    // vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f); 
+    // vertices[2].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+    vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f); // Botleft
+    vertices[0].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+
+    vertices[1].position = XMFLOAT3(-1.0f, 1.0f, 0.0f); // Topleft
+    vertices[1].color = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+
+    vertices[2].position = XMFLOAT3(1.0f, 1.0f, 0.0f); // Topright
+    vertices[2].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+
+    vertices[3].position = XMFLOAT3(1.0f, -1.0f, 0.0f); // Botright
+    vertices[3].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
 
     indices[0] = 0; // Bottom left
     indices[1] = 1; // Top middle
     indices[2] = 2; // Bottom right
+
+    indices[3] = 2; 
+    indices[4] = 3; 
+    indices[5] = 0; 
+
 
     // Config static vertex buffer
     vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;

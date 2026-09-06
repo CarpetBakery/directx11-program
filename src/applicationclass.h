@@ -18,6 +18,7 @@ private:
     ModelClass *m_model;
     ColorShaderClass *m_color_shader;
 
+    void update();
     bool render();
     
 public:

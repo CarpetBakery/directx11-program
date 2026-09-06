@@ -83,6 +83,7 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
 
     // Go through all the display modes and find the one that matches the screen width and height.
     // When a match is found, store the numerator and denominator of the refresh rate for that monitor
+    // NOTE: This seems to break if the screen size is small enough (e.g. 100x100)
     for (int i = 0; i < num_modes; i++)
     {
         if (display_mode_list[i].Width == (unsigned int)screen_width &&
@@ -309,8 +310,6 @@ bool D3DClass::initialize(int screen_width, int screen_height, bool vsync, HWND 
 
     // Create world matrix
     m_world_matrix = XMMatrixIdentity();
-
-    // TODO: Create view matrix
 
     // Create orthographic projection matrix for 2D rendering
     m_ortho_matrix = XMMatrixOrthographicLH((float)screen_width, (float)screen_height, screen_near, screen_depth);

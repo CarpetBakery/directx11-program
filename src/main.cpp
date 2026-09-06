@@ -8,6 +8,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	
 	// Config system
 	system_desc.show_cursor = true;
+	// system_desc.screen_width = 100;
+	// system_desc.screen_height = 100;
 	
 	// Create the system object.
 	system = new SystemClass();

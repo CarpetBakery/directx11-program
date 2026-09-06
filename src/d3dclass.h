@@ -30,6 +30,8 @@ public:
 
     void get_video_card_info(char *, int &);
 
+    inline void set_world_matrix(const DirectX::XMMATRIX &world_matrix) { m_world_matrix = world_matrix; }
+
     void set_back_buffer_render_target();
     void reset_viewport();
 

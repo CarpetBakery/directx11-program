@@ -1,6 +1,12 @@
 #include "applicationclass.h"
+#include "math.h"
 
 using namespace DirectX;
+
+namespace
+{
+    float rot = 0.0f;
+}
 
 ApplicationClass::ApplicationClass()
     : m_direct3d(nullptr),
@@ -80,6 +86,9 @@ bool ApplicationClass::frame()
 {
     bool result;
 
+    // Update the scene
+    update();
+    
     // Render the scene
     result = render();
     if (!result)
@@ -88,6 +97,15 @@ bool ApplicationClass::frame()
     }
 
     return true;
+}
+
+void ApplicationClass::update()
+{
+    // Simple rotation test
+    XMMATRIX mat_rot = XMMatrixRotationY(Math::sin(rot));
+    mat_rot *= XMMatrixRotationZ(Math::sin(rot * 2.0f) * 0.2f);
+    rot += 0.01f;
+    m_direct3d->set_world_matrix(mat_rot);
 }
 
 bool ApplicationClass::render()
