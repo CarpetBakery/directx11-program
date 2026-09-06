@@ -21,7 +21,7 @@ private:
     void shutdown_shader();
     void output_shader_error_message(ID3D10Blob *, HWND, WCHAR *);
 
-    bool set_shader_parameters(ID3D11DeviceContext *, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
+    bool set_shader_parameters(ID3D11DeviceContext *, DirectX::XMMATRIX, DirectX::XMMATRIX, DirectX::XMMATRIX);
     void render_shader(ID3D11DeviceContext *, int);
     
 public:
